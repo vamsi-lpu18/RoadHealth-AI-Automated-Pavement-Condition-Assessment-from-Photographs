@@ -3,6 +3,7 @@
 ![RoadHealth AI](https://img.shields.io/badge/Django-4.2.7-green)
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
+![Deployment](https://img.shields.io/badge/Deployed-Render-success)
 
 ## 🚀 Overview
 
