@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Image - RoadHealth AI{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto fade-in">
+  <div class="bg-white rounded-lg shadow-md p-8">
+    <div class="text-center mb-8">
+      <i class="fas fa-cloud-upload-alt text-blue-600 text-5xl mb-4"></i>
+      <h2 class="text-3xl font-bold text-gray-800">Upload Road Image</h2>
+      <p class="text-gray-600 mt-2">
+        Upload an image of road or pavement for AI analysis
+      </p>
+    </div>
+
+    <form
+      method="post"
+      enctype="multipart/form-data"
+      class="space-y-6"
+      id="uploadForm"
+    >
+      {% csrf_token %}
+
+      <!-- Image Upload -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          <i class="fas fa-image mr-1"></i> Select Image *
+        </label>
+        <div
+          class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition"
+        >
+          {{ form.image }}
+          <div id="imagePreview" class="mt-4 hidden">
+            <img
+              id="preview"
+              class="max-w-full h-auto rounded-lg mx-auto"
+              style="max-height: 300px"
+            />
+          </div>
+          <p class="text-sm text-gray-500 mt-2">
+            Accepted formats: JPEG, PNG (Max size: 10MB)
+          </p>
+        </div>
+        {% if form.image.errors %}
+        <p class="mt-1 text-sm text-red-600">{{ form.image.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Title -->
+      <div>
+        <label
+          for="id_title"
+          class="block text-sm font-medium text-gray-700 mb-2"
+        >
+          <i class="fas fa-heading mr-1"></i> Title (Optional)
+        </label>
+        {{ form.title }} {% if form.title.errors %}
+        <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label
+          for="id_description"
+          class="block text-sm font-medium text-gray-700 mb-2"
+        >
+          <i class="fas fa-align-left mr-1"></i> Description (Optional)
+        </label>
+        {{ form.description }} {% if form.description.errors %}
+        <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Location Information -->
+      <div class="border-t pt-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+          <i class="fas fa-map-marker-alt mr-2"></i> Location Information
+          (Optional)
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label
+              for="id_latitude"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Latitude
+            </label>
+            {{ form.latitude }} {% if form.latitude.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.latitude.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+
+          <div>
+            <label
+              for="id_longitude"
+              class="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Longitude
+            </label>
+            {{ form.longitude }} {% if form.longitude.errors %}
+            <p class="mt-1 text-sm text-red-600">
+              {{ form.longitude.errors.0 }}
+            </p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <label
+            for="id_location_name"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Location Name
+          </label>
+          {{ form.location_name }} {% if form.location_name.errors %}
+          <p class="mt-1 text-sm text-red-600">
+            {{ form.location_name.errors.0 }}
+          </p>
+          {% endif %}
+        </div>
+
+        <button
+          type="button"
+          id="getLocation"
+          class="mt-4 text-blue-600 hover:text-blue-800 text-sm"
+        >
+          <i class="fas fa-location-arrow mr-1"></i> Use My Current Location
+        </button>
+      </div>
+
+      <!-- Submit Buttons -->
+      <div class="flex space-x-4 pt-6">
+        <button
+          type="submit"
+          class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition font-semibold"
+        >
+          <i class="fas fa-upload mr-2"></i> Upload & Analyze
+        </button>
+        <a
+          href="{% url 'dashboard' %}"
+          class="flex-1 bg-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition font-semibold text-center"
+        >
+          <i class="fas fa-times mr-2"></i> Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+  // Image preview
+  document.getElementById("id_image").addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        document.getElementById("preview").src = e.target.result;
+        document.getElementById("imagePreview").classList.remove("hidden");
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Get current location
+  document.getElementById("getLocation").addEventListener("click", function () {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          document.getElementById("id_latitude").value =
+            position.coords.latitude.toFixed(6);
+          document.getElementById("id_longitude").value =
+            position.coords.longitude.toFixed(6);
+          alert("Location captured successfully!");
+        },
+        function (error) {
+          alert("Error getting location: " + error.message);
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser");
+    }
+  });
+</script>
+{% endblock %} {% endblock %}

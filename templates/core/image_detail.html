@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Image Detail - RoadHealth AI{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+  <!-- Back Button -->
+  <div class="mb-6">
+    <a href="{% url 'dashboard' %}" class="text-blue-600 hover:text-blue-800">
+      <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Image Section -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">
+        {{ image.title|default:"Road Image" }}
+      </h2>
+
+      <img
+        src="{{ image.image.url }}"
+        alt="Road Image"
+        class="w-full rounded-lg mb-4"
+      />
+
+      <div class="space-y-3">
+        <div class="flex justify-between">
+          <span class="text-gray-600">Status:</span>
+          <span
+            class="px-3 py-1 rounded-full text-sm font-semibold {% if image.status == 'analyzed' %}bg-green-100 text-green-800 {% elif image.status == 'processing' %}bg-blue-100 text-blue-800 {% elif image.status == 'pending' %}bg-yellow-100 text-yellow-800 {% else %}bg-red-100 text-red-800{% endif %}"
+          >
+            {{ image.get_status_display }}
+          </span>
+        </div>
+
+        <div class="flex justify-between">
+          <span class="text-gray-600">Uploaded By:</span>
+          <span class="font-medium"
+            >{{ image.user.get_full_name|default:image.user.email }}</span
+          >
+        </div>
+
+        <div class="flex justify-between">
+          <span class="text-gray-600">Upload Date:</span>
+          <span class="font-medium"
+            >{{ image.upload_date|date:"M d, Y H:i" }}</span
+          >
+        </div>
+
+        {% if image.location_name %}
+        <div class="flex justify-between">
+          <span class="text-gray-600">Location:</span>
+          <span class="font-medium">{{ image.location_name }}</span>
+        </div>
+        {% endif %} {% if image.has_location %}
+        <div class="flex justify-between">
+          <span class="text-gray-600">Coordinates:</span>
+          <span class="font-medium"
+            >{{ image.latitude }}, {{ image.longitude }}</span
+          >
+        </div>
+        {% endif %} {% if image.description %}
+        <div class="pt-3 border-t">
+          <span class="text-gray-600 block mb-2">Description:</span>
+          <p class="text-gray-800">{{ image.description }}</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Analysis Results Section -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      {% if analysis %}
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">
+        <i class="fas fa-microscope mr-2"></i> Analysis Results
+      </h2>
+
+      <!-- Annotated Image -->
+      {% if analysis.annotated_image %}
+      <div class="mb-4">
+        <h3 class="text-sm font-semibold text-gray-600 mb-2">
+          Annotated Image:
+        </h3>
+        <img
+          src="{{ analysis.annotated_image.url }}"
+          alt="Annotated"
+          class="w-full rounded-lg"
+        />
+      </div>
+      {% endif %}
+
+      <!-- Results -->
+      <div class="space-y-4">
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-600 font-medium">Defect Type:</span>
+            <span class="text-lg font-bold text-blue-600">
+              {{ analysis.get_defect_type_display }}
+            </span>
+          </div>
+
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-600 font-medium">Severity Score:</span>
+            <span class="text-lg font-bold"
+              >{{ analysis.severity_score|floatformat:2 }} / 100</span
+            >
+          </div>
+
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-600 font-medium">Condition:</span>
+            <span
+              class="text-lg font-bold px-3 py-1 rounded-full {% if analysis.condition_label == 'critical' %}bg-red-100 text-red-800 {% elif analysis.condition_label == 'poor' %}bg-orange-100 text-orange-800 {% elif analysis.condition_label == 'moderate' %}bg-yellow-100 text-yellow-800 {% else %}bg-green-100 text-green-800{% endif %}"
+            >
+              {{ analysis.get_condition_label_display }}
+            </span>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600 font-medium">AI Confidence:</span>
+            <span class="text-lg font-bold"
+              >{{ analysis.ai_confidence|floatformat:2|multiply:100 }}%</span
+            >
+          </div>
+        </div>
+
+        <!-- Maintenance Suggestion -->
+        <div class="border-t pt-4">
+          <h3 class="font-bold text-gray-800 mb-2">
+            <i class="fas fa-tools mr-2"></i> Maintenance Recommendation
+          </h3>
+          <p class="text-gray-700 bg-blue-50 p-4 rounded-lg">
+            {{ analysis.maintenance_suggestion }}
+          </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex space-x-3 pt-4">
+          <a
+            href="{% url 'generate_report' image.id %}"
+            class="flex-1 bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+          >
+            <i class="fas fa-file-pdf mr-2"></i> Download Report
+          </a>
+          <a
+            href="{% url 'report_preview' image.id %}"
+            class="flex-1 bg-green-600 text-white text-center py-2 px-4 rounded-lg hover:bg-green-700 transition"
+          >
+            <i class="fas fa-eye mr-2"></i> Preview Report
+          </a>
+        </div>
+      </div>
+      {% else %}
+      <div class="text-center py-12">
+        <i class="fas fa-hourglass-half text-gray-400 text-6xl mb-4"></i>
+        <h3 class="text-xl font-bold text-gray-600 mb-2">Analysis Pending</h3>
+        <p class="text-gray-500">
+          {% if image.status == 'processing' %} Image is currently being
+          analyzed. Please check back in a moment. {% elif image.status ==
+          'failed' %} Analysis failed. Please try uploading the image again. {%
+          else %} Analysis has not started yet. {% endif %}
+        </p>
+        {% if image.status == 'pending' or image.status == 'failed' %}
+        <button
+          onclick="location.reload()"
+          class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+        >
+          <i class="fas fa-sync-alt mr-2"></i> Refresh Status
+        </button>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+  // Auto-refresh if processing
+  {% if image.status == 'processing' or image.status == 'pending' %}
+  setTimeout(function() {
+      location.reload();
+  }, 5000); // Refresh every 5 seconds
+  {% endif %}
+</script>
+{% endblock %} {% endblock %}

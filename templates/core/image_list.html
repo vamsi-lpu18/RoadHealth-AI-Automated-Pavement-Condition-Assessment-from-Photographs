@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}All Images - RoadHealth AI{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">
+            <i class="fas fa-images mr-2"></i> All Uploaded Images
+        </h1>
+        <p class="text-gray-600">View and manage all uploaded road images</p>
+    </div>
+    
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <form method="get" class="flex flex-wrap gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+                <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">All Statuses</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="flex items-end">
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-filter mr-2"></i> Apply Filter
+                </button>
+            </div>
+            
+            <div class="flex items-end">
+                <a href="{% url 'image_list' %}" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">
+                    <i class="fas fa-times mr-2"></i> Clear
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Images Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for image in images %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+            <!-- Image -->
+            <div class="relative">
+                <img src="{{ image.image.url }}" alt="{{ image.title }}" class="w-full h-48 object-cover">
+                
+                <!-- Status Badge -->
+                <div class="absolute top-2 right-2">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold shadow-lg
+                        {% if image.status == 'analyzed' %}bg-green-500 text-white
+                        {% elif image.status == 'processing' %}bg-blue-500 text-white
+                        {% elif image.status == 'pending' %}bg-yellow-500 text-white
+                        {% else %}bg-red-500 text-white{% endif %}">
+                        {{ image.get_status_display }}
+                    </span>
+                </div>
+                
+                <!-- Condition Badge (if analyzed) -->
+                {% if image.analysis %}
+                <div class="absolute top-2 left-2">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold shadow-lg
+                        {% if image.analysis.condition_label == 'critical' %}bg-red-600 text-white
+                        {% elif image.analysis.condition_label == 'poor' %}bg-orange-600 text-white
+                        {% elif image.analysis.condition_label == 'moderate' %}bg-yellow-600 text-white
+                        {% else %}bg-green-600 text-white{% endif %}">
+                        {{ image.analysis.get_condition_label_display }}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Content -->
+            <div class="p-4">
+                <h3 class="text-lg font-bold text-gray-800 mb-2 truncate">
+                    {{ image.title|default:"Untitled Image" }}
+                </h3>
+                
+                <div class="space-y-2 text-sm text-gray-600 mb-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-user w-4 mr-2"></i>
+                        <span class="truncate">{{ image.user.get_full_name|default:image.user.email }}</span>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <i class="fas fa-calendar w-4 mr-2"></i>
+                        <span>{{ image.upload_date|date:"M d, Y" }}</span>
+                    </div>
+                    
+                    {% if image.location_name %}
+                    <div class="flex items-center">
+                        <i class="fas fa-map-marker-alt w-4 mr-2"></i>
+                        <span class="truncate">{{ image.location_name }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if image.analysis %}
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle w-4 mr-2"></i>
+                        <span>{{ image.analysis.get_defect_type_display }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex space-x-2">
+                    <a href="{% url 'image_detail' image.id %}" 
+                       class="flex-1 bg-blue-600 text-white text-center py-2 px-3 rounded-lg hover:bg-blue-700 transition text-sm">
+                        <i class="fas fa-eye mr-1"></i> View
+                    </a>
+                    
+                    {% if image.analysis %}
+                    <a href="{% url 'generate_report' image.id %}" 
+                       class="flex-1 bg-green-600 text-white text-center py-2 px-3 rounded-lg hover:bg-green-700 transition text-sm">
+                        <i class="fas fa-file-pdf mr-1"></i> Report
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full">
+            <div class="bg-white rounded-lg shadow-md p-12 text-center">
+                <i class="fas fa-image text-gray-300 text-6xl mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-600 mb-2">No Images Found</h3>
+                <p class="text-gray-500 mb-6">
+                    {% if request.GET.status %}
+                        No images with the selected status. Try a different filter.
+                    {% else %}
+                        You haven't uploaded any images yet.
+                    {% endif %}
+                </p>
+                <a href="{% url 'upload_image' %}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-upload mr-2"></i> Upload Your First Image
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - RoadHealth AI{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">
+      <i class="fas fa-chart-line mr-2"></i> Dashboard
+    </h1>
+    <p class="text-gray-600">
+      Welcome back, {{ user.first_name|default:user.username }}!
+    </p>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm font-medium">Total Images</p>
+          <p class="text-3xl font-bold text-gray-800 mt-2">
+            {{ total_images }}
+          </p>
+        </div>
+        <div class="bg-blue-100 rounded-full p-3">
+          <i class="fas fa-images text-blue-600 text-2xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm font-medium">Analyzed</p>
+          <p class="text-3xl font-bold text-green-600 mt-2">
+            {{ analyzed_images }}
+          </p>
+        </div>
+        <div class="bg-green-100 rounded-full p-3">
+          <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm font-medium">Pending</p>
+          <p class="text-3xl font-bold text-orange-600 mt-2">
+            {{ pending_images }}
+          </p>
+        </div>
+        <div class="bg-orange-100 rounded-full p-3">
+          <i class="fas fa-clock text-orange-600 text-2xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm font-medium">Avg Severity</p>
+          <p class="text-3xl font-bold text-red-600 mt-2">{{ avg_severity }}</p>
+        </div>
+        <div class="bg-red-100 rounded-full p-3">
+          <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <!-- Defect Type Chart -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-lg font-bold text-gray-800 mb-4">Defect Distribution</h3>
+      <canvas id="defectChart"></canvas>
+    </div>
+
+    <!-- Severity Chart -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-lg font-bold text-gray-800 mb-4">Condition Severity</h3>
+      <canvas id="severityChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Recent Images Table -->
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-lg font-bold text-gray-800">
+        <i class="fas fa-history mr-2"></i> Recent Analyses
+      </h3>
+      <div class="flex space-x-2">
+        <a
+          href="{% url 'export_csv' %}"
+          class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm"
+        >
+          <i class="fas fa-file-csv mr-1"></i> Export CSV
+        </a>
+        <a
+          href="{% url 'summary_report' %}"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm"
+        >
+          <i class="fas fa-file-pdf mr-1"></i> Summary Report
+        </a>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Image
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Title
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Status
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Analysis
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Upload Date
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for image in recent_images %}
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <img
+                src="{{ image.image.url }}"
+                alt="Road Image"
+                class="h-12 w-20 object-cover rounded"
+              />
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900">
+                {{ image.title|default:"Untitled" }}
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              {% if image.status == 'analyzed' %}
+              <span
+                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+                >Analyzed</span
+              >
+              {% elif image.status == 'processing' %}
+              <span
+                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
+                >Processing</span
+              >
+              {% elif image.status == 'pending' %}
+              <span
+                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800"
+                >Pending</span
+              >
+              {% else %}
+              <span
+                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
+                >Failed</span
+              >
+              {% endif %}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              {% if image.analysis %}
+              <span
+                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if image.analysis.condition_label == 'critical' %}bg-red-100 text-red-800 {% elif image.analysis.condition_label == 'poor' %}bg-orange-100 text-orange-800 {% elif image.analysis.condition_label == 'moderate' %}bg-yellow-100 text-yellow-800 {% else %}bg-green-100 text-green-800{% endif %}"
+              >
+                {{ image.analysis.get_condition_label_display }}
+              </span>
+              {% else %}
+              <span class="text-gray-400 text-sm">N/A</span>
+              {% endif %}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ image.upload_date|date:"M d, Y H:i" }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <a
+                href="{% url 'image_detail' image.id %}"
+                class="text-blue-600 hover:text-blue-900 mr-3"
+              >
+                <i class="fas fa-eye"></i> View
+              </a>
+              {% if image.analysis %}
+              <a
+                href="{% url 'generate_report' image.id %}"
+                class="text-green-600 hover:text-green-900"
+              >
+                <i class="fas fa-file-pdf"></i> Report
+              </a>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+              No images uploaded yet.
+              <a
+                href="{% url 'upload_image' %}"
+                class="text-blue-600 hover:text-blue-800"
+                >Upload your first image</a
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+  // Defect Type Chart
+  const defectCtx = document.getElementById('defectChart').getContext('2d');
+  const defectData = {{ defect_stats|safe }};
+
+  new Chart(defectCtx, {
+      type: 'doughnut',
+      data: {
+          labels: defectData.map(d => d.defect_type),
+          datasets: [{
+              data: defectData.map(d => d.count),
+              backgroundColor: [
+                  '#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899'
+              ]
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+              legend: {
+                  position: 'bottom'
+              }
+          }
+      }
+  });
+
+  // Severity Chart
+  const severityCtx = document.getElementById('severityChart').getContext('2d');
+  const severityData = {{ severity_stats|safe }};
+
+  new Chart(severityCtx, {
+      type: 'bar',
+      data: {
+          labels: severityData.map(d => d.condition_label),
+          datasets: [{
+              label: 'Count',
+              data: severityData.map(d => d.count),
+              backgroundColor: [
+                  '#10B981', '#F59E0B', '#F97316', '#EF4444'
+              ]
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  ticks: {
+                      stepSize: 1
+                  }
+              }
+          },
+          plugins: {
+              legend: {
+                  display: false
+              }
+          }
+      }
+  });
+</script>
+{% endblock %} {% endblock %}

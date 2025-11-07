@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}RoadHealth AI{% endblock %}</title>
+
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js for analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      .fade-in {
+        animation: fadeIn 0.5s;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-blue-600 shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center">
+            <a href="{% url 'home' %}" class="flex items-center">
+              <i class="fas fa-road text-white text-2xl mr-2"></i>
+              <span class="text-white text-xl font-bold">RoadHealth AI</span>
+            </a>
+          </div>
+
+          <div class="flex items-center space-x-4">
+            {% if user.is_authenticated %}
+            <a
+              href="{% url 'dashboard' %}"
+              class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              <i class="fas fa-chart-line mr-1"></i> Dashboard
+            </a>
+            <a
+              href="{% url 'upload_image' %}"
+              class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              <i class="fas fa-upload mr-1"></i> Upload
+            </a>
+            <a
+              href="{% url 'image_list' %}"
+              class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              <i class="fas fa-images mr-1"></i> Images
+            </a>
+            <a
+              href="{% url 'map_view' %}"
+              class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              <i class="fas fa-map-marked-alt mr-1"></i> Map
+            </a>
+            <div class="relative group">
+              <button
+                class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                <i class="fas fa-user-circle mr-1"></i> {{ user.username }}
+              </button>
+              <div
+                class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg hidden group-hover:block"
+              >
+                <a
+                  href="{% url 'profile' %}"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  <i class="fas fa-user mr-2"></i> Profile
+                </a>
+                <a
+                  href="{% url 'logout' %}"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </a>
+              </div>
+            </div>
+            {% else %}
+            <a
+              href="{% url 'login' %}"
+              class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Login
+            </a>
+            <a
+              href="{% url 'register' %}"
+              class="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium"
+            >
+              Sign Up
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+      {% for message in messages %}
+      <div
+        class="{% if message.tags == 'error' %}bg-red-100 border-red-400 text-red-700{% elif message.tags == 'success' %}bg-green-100 border-green-400 text-green-700{% else %}bg-blue-100 border-blue-400 text-blue-700{% endif %} border px-4 py-3 rounded relative mb-4 fade-in"
+        role="alert"
+      >
+        <span class="block sm:inline">{{ message }}</span>
+        <button
+          class="absolute top-0 bottom-0 right-0 px-4 py-3"
+          onclick="this.parentElement.style.display='none';"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h3 class="text-lg font-bold mb-4">RoadHealth AI</h3>
+            <p class="text-gray-400 text-sm">
+              Automated pavement condition assessment using artificial
+              intelligence.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold mb-4">Quick Links</h3>
+            <ul class="space-y-2 text-sm">
+              <li>
+                <a
+                  href="{% url 'home' %}"
+                  class="text-gray-400 hover:text-white"
+                  >Home</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'dashboard' %}"
+                  class="text-gray-400 hover:text-white"
+                  >Dashboard</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'upload_image' %}"
+                  class="text-gray-400 hover:text-white"
+                  >Upload Image</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold mb-4">Contact</h3>
+            <p class="text-gray-400 text-sm">
+              Email: support@roadhealth.ai<br />
+              Phone: +1 (555) 123-4567
+            </p>
+          </div>
+        </div>
+        <div
+          class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm"
+        >
+          &copy; 2025 RoadHealth AI. All rights reserved.
+        </div>
+      </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>
