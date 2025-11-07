@@ -66,13 +66,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
             ],
-            # Disable template caching to prevent old template issues
-            'loaders': [
-                ('django.template.loaders.cached.Loader', [
-                    'django.template.loaders.filesystem.Loader',
-                    'django.template.loaders.app_directories.Loader',
-                ]) if not DEBUG else 'django.template.loaders.filesystem.Loader',
-            ] if not DEBUG else None,
         },
     },
 ]
