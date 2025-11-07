@@ -89,11 +89,43 @@ def upload_image(request):
             image_record.user = request.user
             image_record.save()
             
-            # Trigger AI analysis asynchronously
-            from analysis.tasks import analyze_image_task
-            analyze_image_task.delay(image_record.id)
+            # Run AI analysis synchronously (without Celery)
+            try:
+                from analysis.models import AnalysisResult
+                from analysis.ai_model import get_detector
+                from pathlib import Path
+                
+                # Update status to processing
+                image_record.status = 'processing'
+                image_record.save()
+                
+                # Get AI detector and analyze
+                detector = get_detector()
+                image_path = image_record.image.path
+                results = detector.analyze_image(image_path)
+                
+                # Save analysis results
+                analysis = AnalysisResult.objects.create(
+                    image_record=image_record,
+                    defect_type=results['defect_type'],
+                    severity_score=results['severity_score'],
+                    condition_label=results['condition_label'],
+                    ai_confidence=results['ai_confidence'],
+                    model_name=results['model_name'],
+                    model_version=results['model_version'],
+                    analysis_metadata=results.get('analysis_metadata', {}),
+                )
+                
+                # Update status to completed
+                image_record.status = 'completed'
+                image_record.save()
+                
+                messages.success(request, 'Image uploaded and analyzed successfully!')
+            except Exception as e:
+                image_record.status = 'failed'
+                image_record.save()
+                messages.error(request, f'Error analyzing image: {str(e)}')
             
-            messages.success(request, 'Image uploaded successfully! Analysis will begin shortly.')
             return redirect('dashboard')
         else:
             messages.error(request, 'Please correct the errors below.')
