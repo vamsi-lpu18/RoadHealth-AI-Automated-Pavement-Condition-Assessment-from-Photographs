@@ -1,3 +1,4 @@
+setuptools
 Django==4.2.7
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.0
@@ -19,4 +20,3 @@ requests>=2.32.0
 google-generativeai
 python-dotenv
 django-environ
-setuptools
