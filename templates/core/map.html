@@ -1,139 +1,127 @@
-{% extends 'base.html' %} {% block title %}Map View - RoadHealth AI{% endblock %}
- {% block content %}
-<div class="fade-in">
-  <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-800 mb-2">
-      <i class="fas fa-map-marked-alt mr-2"></i> Road Condition Map
-    </h1>
-    <p class="text-gray-600">View all geotagged road images on the map</p>
-  </div>
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Map - RoadHealth AI{% endblock %}
+{% block content %}
+<div class="fade-in space-y-6">
+  <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-semibold tracking-tight text-slate-50 flex items-center gap-2">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/20 text-blue-300">
+          <i class="fas fa-map-marked-alt"></i>
+        </span>
+        Network map
+      </h1>
+      <p class="mt-1 text-xs md:text-sm text-slate-200">
+        Explore geotagged road images and pavement health visually across your network.
+      </p>
+    </div>
+  </header>
 
-  <!-- Map Container -->
-  <div class="bg-white rounded-lg shadow-md p-4">
-    <div id="map" style="height: 600px; width: 100%" class="rounded-lg"></div>
-  </div>
+  <section class="rh-card p-4 md:p-5">
+    <div id="map" class="rounded-xl overflow-hidden" style="height: 520px; width: 100%;"></div>
+  </section>
 
-  <!-- Legend -->
-  <div class="bg-white rounded-lg shadow-md p-6 mt-6">
-    <h3 class="text-lg font-bold text-gray-800 mb-4">Map Legend</h3>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="flex items-center">
-        <div class="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
-        <span class="text-sm text-gray-700">Good Condition</span>
+  <section class="rh-card-muted p-5">
+    <h3 class="text-sm font-semibold text-slate-50 mb-3">Legend</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs text-slate-200">
+      <div class="flex items-center gap-2">
+        <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+        <span>Good condition</span>
       </div>
-      <div class="flex items-center">
-        <div class="w-4 h-4 bg-yellow-500 rounded-full mr-2"></div>
-        <span class="text-sm text-gray-700">Moderate</span>
+      <div class="flex items-center gap-2">
+        <span class="h-2.5 w-2.5 rounded-full bg-amber-300"></span>
+        <span>Moderate</span>
       </div>
-      <div class="flex items-center">
-        <div class="w-4 h-4 bg-orange-500 rounded-full mr-2"></div>
-        <span class="text-sm text-gray-700">Poor</span>
+      <div class="flex items-center gap-2">
+        <span class="h-2.5 w-2.5 rounded-full bg-orange-400"></span>
+        <span>Poor</span>
       </div>
-      <div class="flex items-center">
-        <div class="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
-        <span class="text-sm text-gray-700">Critical</span>
+      <div class="flex items-center gap-2">
+        <span class="h-2.5 w-2.5 rounded-full bg-rose-500"></span>
+        <span>Critical</span>
       </div>
     </div>
-  </div>
+  </section>
 </div>
+{% endblock %}
 
 {% block extra_js %}
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin=""
+/>
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin=""
+></script>
 <script>
-  // Map data from Django
   const mapData = {{ map_data|safe }};
 
-  // Initialize map
-  function initMap() {
-      // Default center (you can change this)
-      const defaultCenter = mapData.length > 0
-          ? { lat: mapData[0].lat, lng: mapData[0].lng }
-          : { lat: 40.7128, lng: -74.0060 }; // New York as default
-
-      const map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 12,
-          center: defaultCenter,
-          mapTypeId: 'roadmap'
-      });
-
-      // Color mapping for severity
-      const severityColors = {
-          'good': '#10B981',
-          'moderate': '#F59E0B',
-          'poor': '#F97316',
-          'critical': '#EF4444',
-          'default': '#6B7280'
-      };
-
-      // Add markers
-      mapData.forEach(function(data) {
-          const color = severityColors[data.severity] || severityColors.default;
-
-          const marker = new google.maps.Marker({
-              position: { lat: data.lat, lng: data.lng },
-              map: map,
-              title: data.title,
-              icon: {
-                  path: google.maps.SymbolPath.CIRCLE,
-                  scale: 10,
-                  fillColor: color,
-                  fillOpacity: 0.8,
-                  strokeColor: '#FFFFFF',
-                  strokeWeight: 2
-              }
-          });
-
-          // Info window
-          const infoContent = `
-              <div style="padding: 10px;">
-                  <h3 style="font-weight: bold; margin-bottom: 5px;">${data.title}</h3>
-                  <p style="margin: 5px 0;"><strong>Location:</strong> ${data.location || 'N/A'}</p>
-                  ${data.defect_type ? `<p style="margin: 5px 0;"><strong>Defect:</strong> ${data.defect_type}</p>` : ''}
-                  ${data.severity ? `<p style="margin: 5px 0;"><strong>Condition:</strong> <span style="color: ${color}; font-weight: bold;">${data.severity.toUpperCase()}</span></p>` : ''}
-                  <a href="/core/images/${data.id}/" style="color: #2563EB; text-decoration: underline;">View Details</a>
-              </div>
-          `;
-
-          const infoWindow = new google.maps.InfoWindow({
-              content: infoContent
-          });
-
-          marker.addListener('click', function() {
-              infoWindow.open(map, marker);
-          });
-      });
-
-      // Fit bounds to show all markers
-      if (mapData.length > 0) {
-          const bounds = new google.maps.LatLngBounds();
-          mapData.forEach(data => {
-              bounds.extend({ lat: data.lat, lng: data.lng });
-          });
-          map.fitBounds(bounds);
-      }
-  }
-</script>
-
-<!-- Google Maps API -->
-<script
-  async
-  defer
-  src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap"
-></script>
-
-<!-- Fallback if no API key -->
-{% if not google_maps_api_key %}
-<script>
   document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("map").innerHTML = `
-            <div class="flex items-center justify-center h-full bg-gray-100 rounded-lg">
-                <div class="text-center p-8">
-                    <i class="fas fa-map-marked-alt text-gray-400 text-6xl mb-4"></i>
-                    <h3 class="text-xl font-bold text-gray-700 mb-2">Google Maps API Key Required</h3>
-                    <p class="text-gray-600">Please add your Google Maps API key to .env file</p>
-                    <p class="text-sm text-gray-500 mt-2">GOOGLE_MAPS_API_KEY=your-api-key</p>
-                </div>
-            </div>
-        `;
+    const defaultCenter =
+      mapData.length > 0
+        ? [mapData[0].lat, mapData[0].lng]
+        : [40.7128, -74.0060];
+
+    const map = L.map("map", {
+      center: defaultCenter,
+      zoom: 12,
+    });
+
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+      maxZoom: 19,
+    }).addTo(map);
+
+    const severityColors = {
+      good: "#22c55e",
+      moderate: "#fbbf24",
+      poor: "#fb923c",
+      critical: "#ef4444",
+      default: "#64748b",
+    };
+
+    const bounds = [];
+
+    mapData.forEach(function (data) {
+      const color = severityColors[data.severity] || severityColors.default;
+      const marker = L.circleMarker([data.lat, data.lng], {
+        radius: 7,
+        color: "#020617",
+        weight: 2,
+        fillColor: color,
+        fillOpacity: 0.9,
+      }).addTo(map);
+
+      const popupHtml = `
+        <div class="text-xs text-slate-800">
+          <h3 class="font-semibold mb-1">${data.title || "Road segment"}</h3>
+          <p class="mb-0.5"><span class="font-medium">Location:</span> ${data.location || "N/A"}</p>
+          ${
+            data.defect_type
+              ? `<p class="mb-0.5"><span class="font-medium">Defect:</span> ${data.defect_type}</p>`
+              : ""
+          }
+          ${
+            data.severity
+              ? `<p class="mb-1"><span class="font-medium">Condition:</span> <span style="color:${color}; font-weight:600;">${(data.severity || "").toUpperCase()}</span></p>`
+              : ""
+          }
+          <a href="/core/images/${data.id}/" class="text-blue-600 hover:text-blue-700 font-semibold">View details</a>
+        </div>
+      `;
+
+      marker.bindPopup(popupHtml);
+      bounds.push([data.lat, data.lng]);
+    });
+
+    if (bounds.length > 0) {
+      map.fitBounds(bounds, { padding: [24, 24] });
+    }
   });
 </script>
-{% endif %} {% endblock %} {% endblock %}
+{% endblock %}

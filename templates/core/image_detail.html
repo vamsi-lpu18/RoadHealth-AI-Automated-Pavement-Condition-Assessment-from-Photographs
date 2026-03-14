@@ -1,183 +1,124 @@
-{% extends 'base.html' %} {% load custom_filters %} {% block title %}Image
-Detail - RoadHealth AI{% endblock %} {% block content %}
-<div class="fade-in">
-  <!-- Back Button -->
-  <div class="mb-6">
-    <a href="{% url 'dashboard' %}" class="text-blue-600 hover:text-blue-800">
-      <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
-    </a>
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Image Detail - RoadHealth AI{% endblock %}
+{% block content %}
+<div class="fade-in min-h-screen py-8">
+  <div class="mb-8">
+    <a href="{% url 'image_list' %}" class="text-blue-300 hover:text-blue-200 font-semibold text-sm"><i class="fas fa-arrow-left mr-2"></i> Back to Images</a>
   </div>
-
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <!-- Image Section -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-2xl font-bold text-gray-800 mb-4">
-        {{ image.title|default:"Road Image" }}
-      </h2>
-
-      <img
-        src="{{ image.image.url }}"
-        alt="Road Image"
-        class="w-full rounded-lg mb-4"
-      />
-
-      <div class="space-y-3">
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="rh-card p-6">
+      <h2 class="text-xl font-semibold text-slate-50 mb-4">{{ image.title|default:"Road Image" }}</h2>
+      <div class="overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-950/70 mb-5 shadow-xl shadow-slate-950/70">
+        <img
+          src="{{ image.image.url }}"
+          alt="Road Image"
+          class="w-full max-h-[560px] object-contain bg-slate-900"
+        />
+      </div>
+      <div class="space-y-3 text-sm">
         <div class="flex justify-between">
-          <span class="text-gray-600">Status:</span>
-          <span
-            class="px-3 py-1 rounded-full text-sm font-semibold {% if image.status == 'analyzed' %}bg-green-100 text-green-800 {% elif image.status == 'processing' %}bg-blue-100 text-blue-800 {% elif image.status == 'pending' %}bg-yellow-100 text-yellow-800 {% else %}bg-red-100 text-red-800{% endif %}"
-          >
-            {{ image.get_status_display }}
-          </span>
+          <span class="text-slate-400">Status:</span>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold {% if image.status == 'analyzed' %}bg-green-600 text-white{% elif image.status == 'processing' %}bg-blue-600 text-white{% elif image.status == 'pending' %}bg-amber-600 text-white{% else %}bg-red-600 text-white{% endif %}">{{ image.get_status_display }}</span>
         </div>
-
         <div class="flex justify-between">
-          <span class="text-gray-600">Uploaded By:</span>
-          <span class="font-medium"
-            >{{ image.user.get_full_name|default:image.user.email }}</span
-          >
+          <span class="text-slate-400">Uploaded by:</span>
+          <span class="text-slate-200">{{ image.user.get_full_name|default:image.user.email }}</span>
         </div>
-
         <div class="flex justify-between">
-          <span class="text-gray-600">Upload Date:</span>
-          <span class="font-medium"
-            >{{ image.upload_date|date:"M d, Y H:i" }}</span
-          >
+          <span class="text-slate-400">Upload date:</span>
+          <span class="text-slate-200">{{ image.upload_date|date:"M d, Y H:i" }}</span>
         </div>
-
         {% if image.location_name %}
         <div class="flex justify-between">
-          <span class="text-gray-600">Location:</span>
-          <span class="font-medium">{{ image.location_name }}</span>
+          <span class="text-slate-400">Location:</span>
+          <span class="text-slate-200">{{ image.location_name }}</span>
         </div>
-        {% endif %} {% if image.has_location %}
+        {% endif %}
+        {% if image.has_location %}
         <div class="flex justify-between">
-          <span class="text-gray-600">Coordinates:</span>
-          <span class="font-medium"
-            >{{ image.latitude }}, {{ image.longitude }}</span
-          >
+          <span class="text-slate-400">Coordinates:</span>
+          <span class="text-slate-200">{{ image.latitude }}, {{ image.longitude }}</span>
         </div>
-        {% endif %} {% if image.description %}
-        <div class="pt-3 border-t">
-          <span class="text-gray-600 block mb-2">Description:</span>
-          <p class="text-gray-800">{{ image.description }}</p>
+        {% endif %}
+        {% if image.description %}
+        <div class="flex justify-between">
+          <span class="text-slate-400">Description:</span>
+          <span class="text-slate-200">{{ image.description }}</span>
         </div>
         {% endif %}
       </div>
     </div>
-
-    <!-- Analysis Results Section -->
-    <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="rh-card-muted p-6">
+      <h3 class="text-base font-semibold text-slate-50 mb-4">Analysis results</h3>
       {% if analysis %}
-      <h2 class="text-2xl font-bold text-gray-800 mb-4">
-        <i class="fas fa-microscope mr-2"></i> Analysis Results
-      </h2>
-
-      <!-- Annotated Image -->
-      {% if analysis.annotated_image %}
-      <div class="mb-4">
-        <h3 class="text-sm font-semibold text-gray-600 mb-2">
-          Annotated Image:
-        </h3>
-        <img
-          src="{{ analysis.annotated_image.url }}"
-          alt="Annotated"
-          class="w-full rounded-lg"
-        />
-      </div>
-      {% endif %}
-
-      <!-- Results -->
       <div class="space-y-4">
-        <div class="bg-gray-50 p-4 rounded-lg">
+        {% if analysis.annotated_image %}
+        <div class="mb-4">
+          <h3 class="text-xs font-semibold text-slate-400 mb-2">Annotated image</h3>
+          <img src="{{ analysis.annotated_image.url }}" alt="Annotated" class="w-full rounded-lg" />
+        </div>
+        {% endif %}
+        <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-700/80">
           <div class="flex justify-between items-center mb-2">
-            <span class="text-gray-600 font-medium">Defect Type:</span>
-            <span class="text-lg font-bold text-blue-600">
-              {{ analysis.get_defect_type_display }}
-            </span>
+            <span class="text-slate-400 font-medium">Defect type:</span>
+            <span class="text-sm font-bold text-blue-300">{{ analysis.get_defect_type_display }}</span>
           </div>
-
           <div class="flex justify-between items-center mb-2">
-            <span class="text-gray-600 font-medium">Severity Score:</span>
-            <span class="text-lg font-bold"
-              >{{ analysis.severity_score|floatformat:2 }} / 100</span
-            >
+            <span class="text-slate-400 font-medium">Severity score:</span>
+            <span class="text-sm font-bold text-slate-200">{{ analysis.severity_score|floatformat:2 }} / 100</span>
           </div>
-
           <div class="flex justify-between items-center mb-2">
-            <span class="text-gray-600 font-medium">Condition:</span>
-            <span
-              class="text-lg font-bold px-3 py-1 rounded-full {% if analysis.condition_label == 'critical' %}bg-red-100 text-red-800 {% elif analysis.condition_label == 'poor' %}bg-orange-100 text-orange-800 {% elif analysis.condition_label == 'moderate' %}bg-yellow-100 text-yellow-800 {% else %}bg-green-100 text-green-800{% endif %}"
-            >
+            <span class="text-slate-400 font-medium">Condition:</span>
+            <span class="text-sm font-bold px-3 py-1 rounded-full {% if analysis.condition_label == 'critical' %}bg-red-900/50 text-red-300 {% elif analysis.condition_label == 'poor' %}bg-orange-900/50 text-orange-300 {% elif analysis.condition_label == 'moderate' %}bg-amber-900/50 text-amber-300 {% else %}bg-green-900/50 text-green-300{% endif %}">
               {{ analysis.get_condition_label_display }}
             </span>
           </div>
-
           <div class="flex justify-between items-center">
-            <span class="text-gray-600 font-medium">AI Confidence:</span>
-            <span class="text-lg font-bold"
-              >{{ analysis.ai_confidence|floatformat:2|multiply:100 }}%</span
-            >
+            <span class="text-slate-400 font-medium">AI confidence:</span>
+            <span class="text-sm font-bold text-slate-200">{{ analysis.ai_confidence|floatformat:2|multiply:100 }}%</span>
           </div>
         </div>
-
-        <!-- Maintenance Suggestion -->
-        <div class="border-t pt-4">
-          <h3 class="font-bold text-gray-800 mb-2">
-            <i class="fas fa-tools mr-2"></i> Maintenance Recommendation
-          </h3>
-          <p class="text-gray-700 bg-blue-50 p-4 rounded-lg">
+        <div class="border-t border-slate-700 pt-4">
+          <h3 class="font-semibold text-slate-200 mb-2 text-sm"><i class="fas fa-tools mr-2"></i> Maintenance recommendation</h3>
+          <p class="text-slate-300 text-sm bg-slate-900/40 p-4 rounded-lg border border-slate-700/60">
             {{ analysis.maintenance_suggestion }}
           </p>
         </div>
-
-        <!-- Action Buttons -->
-        <div class="flex space-x-3 pt-4">
-          <a
-            href="{% url 'generate_report' image.id %}"
-            class="flex-1 bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition"
-          >
+        <div class="flex gap-3 pt-4">
+          <a href="{% url 'generate_report' image.id %}" class="flex-1 bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-500 transition text-sm font-medium">
             <i class="fas fa-file-pdf mr-2"></i> Download Report
           </a>
-          <a
-            href="{% url 'report_preview' image.id %}"
-            class="flex-1 bg-green-600 text-white text-center py-2 px-4 rounded-lg hover:bg-green-700 transition"
-          >
+          <a href="{% url 'report_preview' image.id %}" class="flex-1 bg-emerald-600 text-white text-center py-2 px-4 rounded-lg hover:bg-emerald-500 transition text-sm font-medium">
             <i class="fas fa-eye mr-2"></i> Preview Report
           </a>
         </div>
       </div>
       {% else %}
       <div class="text-center py-12">
-        <i class="fas fa-hourglass-half text-gray-400 text-6xl mb-4"></i>
-        <h3 class="text-xl font-bold text-gray-600 mb-2">Analysis Pending</h3>
-        <p class="text-gray-500">
-          {% if image.status == 'processing' %} Image is currently being
-          analyzed. Please check back in a moment. {% elif image.status ==
-          'failed' %} Analysis failed. Please try uploading the image again. {%
-          else %} Analysis has not started yet. {% endif %}
+        <i class="fas fa-hourglass-half text-slate-500 text-6xl mb-4"></i>
+        <h3 class="text-lg font-semibold text-slate-200 mb-2">Analysis pending</h3>
+        <p class="text-sm text-slate-500">
+          {% if image.status == 'processing' %} Image is currently being analyzed. Please check back in a moment.
+          {% elif image.status == 'failed' %} Analysis failed. Please try uploading the image again.
+          {% else %} Analysis has not started yet. {% endif %}
         </p>
         {% if image.status == 'pending' or image.status == 'failed' %}
-        <button
-          onclick="location.reload()"
-          class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
-        >
-          <i class="fas fa-sync-alt mr-2"></i> Refresh Status
+        <button onclick="location.reload()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-500 transition text-sm">
+          <i class="fas fa-sync-alt mr-2"></i> Refresh status
         </button>
         {% endif %}
       </div>
       {% endif %}
     </div>
-  </div>
+  </section>
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script>
-  // Auto-refresh if processing
   {% if image.status == 'processing' or image.status == 'pending' %}
-  setTimeout(function() {
-      location.reload();
-  }, 5000); // Refresh every 5 seconds
+  setTimeout(function() { location.reload(); }, 5000);
   {% endif %}
 </script>
-{% endblock %} {% endblock %}
+{% endblock %}

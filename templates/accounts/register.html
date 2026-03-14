@@ -1,127 +1,56 @@
-{% extends 'base.html' %} {% block title %}Register - RoadHealth AI
-{% endblock%} 
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Register - RoadHealth AI{% endblock %}
 {% block content %}
-<div class="max-w-2xl mx-auto">
-  <div class="bg-white rounded-lg shadow-md p-8 fade-in">
-    <div class="text-center mb-8">
-      <i class="fas fa-user-plus text-blue-600 text-5xl mb-4"></i>
-      <h2 class="text-3xl font-bold text-gray-800">Create Account</h2>
-      <p class="text-gray-600 mt-2">
-        Join RoadHealth AI and start analyzing road conditions
-      </p>
+<div class="max-w-2xl mx-auto fade-in">
+  <div class="rh-shell p-8">
+    <div class="text-center mb-6">
+      <h2 class="text-xl font-semibold text-slate-50">Create your RoadHealth AI account</h2>
+      <p class="text-xs text-slate-400 mt-1">Set up access for dashboards, image uploads and reports.</p>
     </div>
-
-    <form method="post" class="space-y-6">
+    <form method="post" class="space-y-4">
       {% csrf_token %}
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label
-            for="id_first_name"
-            class="block text-sm font-medium text-gray-700 mb-2"
-          >
-            First Name
-          </label>
-          {{ form.first_name }} {% if form.first_name.errors %}
-          <p class="mt-1 text-sm text-red-600">
-            {{ form.first_name.errors.0 }}
-          </p>
-          {% endif %}
+          <label for="id_first_name" class="block text-xs font-medium text-slate-300 mb-2">First name</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}<p class="mt-1 text-xs text-red-400">{{ form.first_name.errors.0 }}</p>{% endif %}
         </div>
-
         <div>
-          <label
-            for="id_last_name"
-            class="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Last Name
-          </label>
-          {{ form.last_name }} {% if form.last_name.errors %}
-          <p class="mt-1 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>
-          {% endif %}
+          <label for="id_last_name" class="block text-xs font-medium text-slate-300 mb-2">Last name</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}<p class="mt-1 text-xs text-red-400">{{ form.last_name.errors.0 }}</p>{% endif %}
         </div>
       </div>
-
       <div>
-        <label
-          for="id_email"
-          class="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Email Address
-        </label>
-        {{ form.email }} {% if form.email.errors %}
-        <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
-        {% endif %}
+        <label for="id_email" class="block text-xs font-medium text-slate-300 mb-2">Work email</label>
+        {{ form.email }}
+        {% if form.email.errors %}<p class="mt-1 text-xs text-red-400">{{ form.email.errors.0 }}</p>{% endif %}
       </div>
-
       <div>
-        <label
-          for="id_username"
-          class="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Username
-        </label>
-        {{ form.username }} {% if form.username.errors %}
-        <p class="mt-1 text-sm text-red-600">{{ form.username.errors.0 }}</p>
-        {% endif %}
+        <label for="id_username" class="block text-xs font-medium text-slate-300 mb-2">Username</label>
+        {{ form.username }}
+        {% if form.username.errors %}<p class="mt-1 text-xs text-red-400">{{ form.username.errors.0 }}</p>{% endif %}
       </div>
-
-      <div>
-        <label
-          for="id_role"
-          class="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Role
-        </label>
-        {{ form.role }} {% if form.role.errors %}
-        <p class="mt-1 text-sm text-red-600">{{ form.role.errors.0 }}</p>
-        {% endif %}
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label
-            for="id_password1"
-            class="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Password
-          </label>
-          {{ form.password1 }} {% if form.password1.errors %}
-          <p class="mt-1 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
-          {% endif %}
+          <label for="id_password1" class="block text-xs font-medium text-slate-300 mb-2">Password</label>
+          {{ form.password1 }}
+          {% if form.password1.errors %}<p class="mt-1 text-xs text-red-400">{{ form.password1.errors.0 }}</p>{% endif %}
         </div>
-
         <div>
-          <label
-            for="id_password2"
-            class="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Confirm Password
-          </label>
-          {{ form.password2 }} {% if form.password2.errors %}
-          <p class="mt-1 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
-          {% endif %}
+          <label for="id_password2" class="block text-xs font-medium text-slate-300 mb-2">Confirm password</label>
+          {{ form.password2 }}
+          {% if form.password2.errors %}<p class="mt-1 text-xs text-red-400">{{ form.password2.errors.0 }}</p>{% endif %}
         </div>
       </div>
-
-      <button
-        type="submit"
-        class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition font-semibold"
-      >
-        <i class="fas fa-user-plus mr-2"></i> Create Account
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition font-semibold text-sm">
+        <i class="fas fa-user-plus mr-2"></i> Create account
       </button>
     </form>
-
-    <div class="mt-6 text-center">
-      <p class="text-gray-600">
-        Already have an account?
-        <a
-          href="{% url 'login' %}"
-          class="text-blue-600 hover:text-blue-500 font-semibold"
-        >
-          Sign in
-        </a>
-      </p>
+    <div class="mt-5 text-center text-xs text-slate-400">
+      <span>Already have an account?</span>
+      <a href="{% url 'login' %}" class="text-blue-300 hover:text-blue-200 font-medium ml-1">Sign in</a>
     </div>
   </div>
 </div>

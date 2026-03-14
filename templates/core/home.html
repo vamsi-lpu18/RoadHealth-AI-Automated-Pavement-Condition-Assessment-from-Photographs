@@ -1,162 +1,108 @@
-{% extends 'base.html' %} {% block title %}Home - RoadHealth AI{% endblock %} 
-{%block content %}
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Home - RoadHealth AI{% endblock %}
+{% block content %}
 
-<div
-  class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-xl p-12 text-white mb-12 fade-in"
->
-
-  <div class="max-w-3xl">
-    <h1 class="text-4xl md:text-5xl font-bold mb-4">
-      Welcome to RoadHealth AI
-    </h1>
-    <p class="text-xl mb-8 text-blue-100">
-      Automated Pavement Condition Assessment using Artificial Intelligence
-    </p>
-    <div class="flex space-x-4">
-      {% if user.is_authenticated %}
-      <a
-        href="{% url 'upload_image' %}"
-        class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition"
-      >
-        <i class="fas fa-upload mr-2"></i> Upload Image
-      </a>
-      <a
-        href="{% url 'dashboard' %}"
-        class="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-      >
-        <i class="fas fa-chart-line mr-2"></i> View Dashboard
-      </a>
-      {% else %}
-      <a
-        href="{% url 'register' %}"
-        class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition"
-      >
-        Get Started
-      </a>
-      <a
-        href="{% url 'login' %}"
-        class="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-      >
-        Sign In
-      </a>
-      {% endif %}
-    </div>
-  </div>
-</div>
-
-
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-  <div
-    class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition fade-in"
-  >
-    <div class="text-blue-600 text-4xl mb-4">
-      <i class="fas fa-brain"></i>
-    </div>
-    <h3 class="text-xl font-bold mb-2">AI-Powered Analysis</h3>
-    <p class="text-gray-600">
-      Advanced deep learning models detect cracks, potholes, and surface defects
-      with high accuracy.
-    </p>
-  </div>
-
-  <div
-    class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition fade-in"
-    style="animation-delay: 0.1s"
-  >
-    <div class="text-green-600 text-4xl mb-4">
-      <i class="fas fa-chart-bar"></i>
-    </div>
-    <h3 class="text-xl font-bold mb-2">Real-Time Analytics</h3>
-    <p class="text-gray-600">
-      Comprehensive dashboard with charts, statistics, and severity assessments
-      for informed decision-making.
-    </p>
-  </div>
-
-  <div
-    class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition fade-in"
-    style="animation-delay: 0.2s"
-  >
-    <div class="text-red-600 text-4xl mb-4">
-      <i class="fas fa-file-pdf"></i>
-    </div>
-    <h3 class="text-xl font-bold mb-2">Professional Reports</h3>
-    <p class="text-gray-600">
-      Generate detailed PDF reports and export data to CSV for comprehensive
-      documentation.
-    </p>
-  </div>
-</div>
-
-
-<div class="bg-white rounded-lg shadow-md p-8 mb-12">
-  <h2 class="text-3xl font-bold mb-8 text-center">How It Works</h2>
-
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-    <div class="text-center">
-      <div
-        class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-      >
-        <span class="text-blue-600 text-2xl font-bold">1</span>
+<section class="fade-in mb-12">
+  <div class="rh-shell px-8 py-10 mb-10">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+      <div>
+        <p class="rh-badge mb-3 inline-flex items-center gap-2 text-xs text-slate-300">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          Road condition analytics workspace
+        </p>
+        <h1 class="text-3xl md:text-4xl font-semibold tracking-tight text-slate-50 mb-3">
+          Turn raw road imagery<br class="hidden md:block" />into actionable maintenance plans.
+        </h1>
+        <p class="text-sm md:text-base text-slate-400 max-w-xl">
+          RoadHealth centralizes pavement photos, AI analysis and reporting so your team can
+          prioritize work orders based on real condition data—not guesswork.
+        </p>
+        <div class="flex flex-wrap items-center gap-3 mt-6">
+          <a
+            href="{% url 'dashboard' %}"
+            class="inline-flex items-center gap-2 rounded-full bg-blue-500 px-5 py-2.5 text-sm font-medium text-slate-50 hover:bg-blue-400 transition-colors"
+          >
+            Open dashboard
+            <i class="fas fa-arrow-right text-xs"></i>
+          </a>
+          {% if not user.is_authenticated %}
+          <a
+            href="{% url 'register' %}"
+            class="inline-flex items-center gap-2 rounded-full border border-slate-600/70 bg-slate-900/50 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800/80 transition-colors"
+          >
+            Create an account
+          </a>
+          {% endif %}
+        </div>
       </div>
-      <h4 class="font-bold mb-2">Upload Image</h4>
-      <p class="text-gray-600 text-sm">
-        Upload road or pavement images from your device
+      <div class="flex-1">
+        <div class="rh-card p-5">
+          <p class="text-xs font-medium text-slate-400 uppercase tracking-[0.16em] mb-3">
+            Example insight
+          </p>
+          <div class="space-y-3 text-xs text-slate-300">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Segment</span>
+              <span class="font-medium text-slate-100">Highway 12 – Eastbound</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Condition index</span>
+              <span class="inline-flex items-center gap-2">
+                <span class="font-semibold text-amber-400">52 / 100</span>
+                <span class="h-1.5 w-16 overflow-hidden rounded-full bg-slate-800">
+                  <span class="block h-full w-[52%] rounded-full bg-gradient-to-r from-amber-400 to-orange-500"></span>
+                </span>
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Critical defects</span>
+              <span class="font-medium text-rose-300">Longitudinal cracking, potholes</span>
+            </div>
+            <div class="pt-3 mt-2 border-t border-slate-800">
+              <p class="text-xs text-slate-400">
+                Recommended: schedule targeted patching in the next maintenance window to avoid
+                accelerated surface failure.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="rh-card-muted p-6">
+      <p class="text-xs font-semibold text-slate-400 tracking-[0.16em] uppercase mb-3">
+        1 · Capture
+      </p>
+      <h3 class="text-sm font-semibold text-slate-50 mb-2">Upload your road imagery</h3>
+      <p class="text-xs text-slate-400">
+        Drag-and-drop individual images or import from existing inspections. RoadHealth AI keeps
+        everything organized by project and location.
       </p>
     </div>
-
-    <div class="text-center">
-      <div
-        class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-      >
-        <span class="text-blue-600 text-2xl font-bold">2</span>
-      </div>
-      <h4 class="font-bold mb-2">AI Analysis</h4>
-      <p class="text-gray-600 text-sm">
-        Our AI model analyzes the image for defects
+    <div class="rh-card-muted p-6">
+      <p class="text-xs font-semibold text-slate-400 tracking-[0.16em] uppercase mb-3">
+        2 · Analyse
+      </p>
+      <h3 class="text-sm font-semibold text-slate-50 mb-2">Objective AI assessment</h3>
+      <p class="text-xs text-slate-400">
+        Our model scores severity and classifies defects consistently across your network, so you
+        can compare segments with confidence.
       </p>
     </div>
-
-    <div class="text-center">
-      <div
-        class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-      >
-        <span class="text-blue-600 text-2xl font-bold">3</span>
-      </div>
-      <h4 class="font-bold mb-2">View Results</h4>
-      <p class="text-gray-600 text-sm">
-        Get detailed analysis with severity scores
+    <div class="rh-card-muted p-6">
+      <p class="text-xs font-semibold text-slate-400 tracking-[0.16em] uppercase mb-3">
+        3 · Act
       </p>
-    </div>
-
-    <div class="text-center">
-      <div
-        class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-      >
-        <span class="text-blue-600 text-2xl font-bold">4</span>
-      </div>
-      <h4 class="font-bold mb-2">Take Action</h4>
-      <p class="text-gray-600 text-sm">
-        Get maintenance recommendations and export reports
+      <h3 class="text-sm font-semibold text-slate-50 mb-2">Prioritize and report</h3>
+      <p class="text-xs text-slate-400">
+        Export reports for stakeholders, share map views with field teams, and plan work orders
+        based on the highest risk sections.
       </p>
     </div>
   </div>
-</div>
+</section>
 
-<!-- CTA Section -->
-{% if not user.is_authenticated %}
-<div
-  class="bg-gradient-to-r from-green-500 to-green-700 rounded-lg shadow-xl p-8 text-white text-center"
->
-  <h2 class="text-3xl font-bold mb-4">Ready to Get Started?</h2>
-  <p class="text-xl mb-6 text-green-100">
-    Join RoadHealth AI today and start analyzing road conditions with AI
-  </p>
-  <a
-    href="{% url 'register' %}"
-    class="inline-block bg-white text-green-600 px-8 py-3 rounded-lg font-semibold hover:bg-green-50 transition"
-  >
-    Create Free Account
-  </a>
-</div>
-{% endif %} {% endblock %}
+{% endblock %}
