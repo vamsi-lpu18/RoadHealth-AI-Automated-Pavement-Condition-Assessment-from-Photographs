@@ -172,8 +172,9 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # Google Maps API
 GOOGLE_MAPS_API_KEY = config('GOOGLE_MAPS_API_KEY', default='')
 
-# OpenAI API
+# OpenAI / Gemini API
 OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
 
 # Celery Configuration
 CELERY_BROKER_URL = 'redis://localhost:6379/0'

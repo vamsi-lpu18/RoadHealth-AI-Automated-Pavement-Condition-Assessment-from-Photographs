@@ -1,41 +1,50 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="fade-in max-w-4xl mx-auto">
   <!-- Analysis Results -->
   <div class="rh-card p-8 mb-6">
-    <h2 class="text-2xl font-bold text-gray-800 mb-4">Analysis Results</h2>
-    <div class="grid grid-cols-2 gap-4 mb-6">
+    <h2 class="text-2xl font-bold text-gray-100 mb-4">Analysis Results</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
       <div class="rh-card-muted p-4">
-        <p class="text-sm text-gray-600">Defect Type</p>
-        <p class="text-xl font-bold text-blue-600">
+        <p class="text-xs text-slate-300 uppercase tracking-wide">Defect Type</p>
+        <p class="text-xl font-semibold text-blue-300 mt-1">
           {{ analysis.get_defect_type_display }}
         </p>
       </div>
       <div class="rh-card-muted p-4">
-        <p class="text-sm text-gray-600">Severity Score</p>
-        <p class="text-xl font-bold">
+        <p class="text-xs text-slate-300 uppercase tracking-wide">Severity Score</p>
+        <p class="text-xl font-semibold text-slate-50 mt-1">
           {{ analysis.severity_score|floatformat:2 }} / 100
         </p>
       </div>
       <div class="rh-card-muted p-4">
-        <p class="text-sm text-gray-600">Condition</p>
+        <p class="text-xs text-slate-300 uppercase tracking-wide">Condition</p>
         <p
-          class="text-xl font-bold {% if analysis.condition_label == 'critical' %}text-red-600 {% elif analysis.condition_label == 'poor' %}text-orange-600 {% elif analysis.condition_label == 'moderate' %}text-yellow-600 {% else %}text-green-600{% endif %}"
+          class="text-xl font-semibold mt-1
+          {% if analysis.condition_label == 'critical' %}text-red-400
+          {% elif analysis.condition_label == 'poor' %}text-orange-300
+          {% elif analysis.condition_label == 'moderate' %}text-amber-300
+          {% else %}text-emerald-300{% endif %}"
         >
           {{ analysis.get_condition_label_display }}
         </p>
       </div>
       <div class="rh-card-muted p-4">
-        <p class="text-sm text-gray-600">AI Confidence</p>
-        <p class="text-xl font-bold">
+        <p class="text-xs text-slate-300 uppercase tracking-wide">AI Confidence</p>
+        <p class="text-xl font-semibold text-slate-50 mt-1">
           {{ analysis.ai_confidence|floatformat:2|multiply:100 }}%
         </p>
       </div>
     </div>
 
-    <div class="border-t pt-4">
-      <h3 class="font-bold text-gray-800 mb-2">Model Information</h3>
-      <p class="text-sm text-gray-600">
+    <div class="border-t border-slate-700 pt-4 mt-2">
+      <h3 class="font-semibold text-slate-100 mb-1">Model Information</h3>
+      <p class="text-xs text-slate-300">
         {{ analysis.model_name }} v{{ analysis.model_version }}
       </p>
-      <p class="text-sm text-gray-600">
+      <p class="text-xs text-slate-400 mt-1">
         Analysis Date: {{ analysis.analyzed_at|date:"M d, Y H:i" }}
       </p>
     </div>
@@ -43,53 +52,55 @@
 
   <!-- Maintenance Recommendation -->
   <div class="rh-card p-8 mb-6">
-    <h2 class="text-2xl font-bold text-gray-800 mb-4">
+    <h2 class="text-2xl font-bold text-slate-50 mb-4">
       <i class="fas fa-tools mr-2"></i> Maintenance Recommendation
     </h2>
     <div class="rh-card-muted p-6">
-      <p class="text-slate-50">{{ analysis.maintenance_suggestion }}</p>
+      <p class="text-sm text-slate-100 leading-relaxed">
+        {{ analysis.maintenance_suggestion }}
+      </p>
     </div>
   </div>
 
   <!-- Images -->
   <div class="rh-card p-8">
-    <h2 class="text-2xl font-bold text-gray-800 mb-4">Images</h2>
-    <div
-      class="grid grid-cols-1 {% if analysis.annotated_image %}md:grid-cols-2{% endif %} gap-6"
-    >
+    <h2 class="text-2xl font-bold text-slate-50 mb-4">Images</h2>
+    <div class="grid grid-cols-1 {% if analysis.annotated_image %}md:grid-cols-2{% endif %} gap-6">
       <div>
         <h3 class="font-semibold text-slate-100 mb-2">Original Image</h3>
-        <img
-          src="{{ image.image.url }}"
-          alt="Original"
-          class="w-full rounded-lg shadow"
-        />
+        <div class="overflow-hidden rounded-xl border border-slate-800/80 bg-slate-950/60">
+          <img
+            src="{{ image.image.url }}"
+            alt="Original"
+            class="w-full max-h-[420px] object-contain bg-slate-900"
+          />
+        </div>
       </div>
       {% if analysis.annotated_image %}
       <div>
         <h3 class="font-semibold text-slate-100 mb-2">Annotated Analysis</h3>
-        <img
-          src="{{ analysis.annotated_image.url }}"
-          alt="Annotated"
-          class="w-full rounded-lg shadow"
-        />
+        <div class="overflow-hidden rounded-xl border border-slate-800/80 bg-slate-950/60">
+          <img
+            src="{{ analysis.annotated_image.url }}"
+            alt="Annotated"
+            class="w-full max-h-[420px] object-contain bg-slate-900"
+          />
+        </div>
       </div>
       {% endif %}
     </div>
   </div>
 
   <!-- Footer -->
-  <div
-    class="rh-card-muted p-6 mt-6 text-center text-sm text-slate-200"
-  >
+  <div class="rh-card-muted p-6 mt-6 text-center text-sm text-slate-200">
     <p class="font-semibold text-slate-50">
       RoadHealth AI - Automated Pavement Condition Assessment
     </p>
-    <p class="mt-2">
+    <p class="mt-2 text-slate-300">
       This report is generated automatically by AI analysis and should be
       reviewed by qualified engineers.
     </p>
-    <p class="mt-2">
+    <p class="mt-2 text-slate-400">
       For questions or concerns, please contact your system administrator.
     </p>
   </div>

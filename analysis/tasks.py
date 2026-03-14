@@ -50,6 +50,7 @@ def analyze_image_task(image_record_id):
             model_name=results['model_name'],
             model_version=results['model_version'],
             analysis_metadata=results.get('analysis_metadata', {}),
+            maintenance_suggestion=results.get('maintenance_suggestion', ''),
         )
         
         # Save annotated image if available
