@@ -18,6 +18,16 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
+# Render.com sets RENDER_EXTERNAL_HOSTNAME
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+# CSRF Trusted Origins (needed for Render)
+CSRF_TRUSTED_ORIGINS = []
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -119,7 +129,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Only add STATICFILES_DIRS if the 'static' directory exists
+_static_dir = BASE_DIR / 'static'
+if _static_dir.exists():
+    STATICFILES_DIRS = [_static_dir]
+else:
+    STATICFILES_DIRS = []
+
+# WhiteNoise for serving static files in production
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
@@ -159,6 +179,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+if RENDER_EXTERNAL_HOSTNAME:
+    CORS_ALLOWED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
 
 # Email Configuration
 EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
@@ -200,10 +222,6 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
         },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'django.log',
-        },
     },
     'root': {
         'handlers': ['console'],
@@ -211,12 +229,18 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
         },
     },
 }
 
-# Create logs directory if it doesn't exist
-os.makedirs(BASE_DIR / 'logs', exist_ok=True)
+# Only use file logging in local development
+if DEBUG:
+    os.makedirs(BASE_DIR / 'logs', exist_ok=True)
+    LOGGING['handlers']['file'] = {
+        'class': 'logging.FileHandler',
+        'filename': BASE_DIR / 'logs' / 'django.log',
+    }
+    LOGGING['loggers']['django']['handlers'].append('file')

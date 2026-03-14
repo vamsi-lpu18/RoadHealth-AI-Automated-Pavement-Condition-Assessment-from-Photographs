@@ -1,2 +1,2 @@
-setuptools==82.0.1
+setuptools>=69.0,<76.0
 wheel
