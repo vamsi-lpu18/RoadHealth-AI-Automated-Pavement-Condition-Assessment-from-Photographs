@@ -19,3 +19,4 @@ requests>=2.32.0
 google-generativeai
 python-dotenv
 django-environ
+setuptools
