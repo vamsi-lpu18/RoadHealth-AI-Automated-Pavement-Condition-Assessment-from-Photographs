@@ -9,7 +9,7 @@
 ![AI](https://img.shields.io/badge/AI-Computer_Vision-orange)
 ![Status](https://img.shields.io/badge/Status-Production-brightgreen)
 
-### 🌐 **[Live Demo](https://roadhealth-ai-automated-pavement.onrender.com)** | � [Documentation](#documentation) | �🚀 [Quick Start](#-quick-start)
+### 🌐 **[Live Demo](https://roadhealth-ai-automated-pavement-uyar.onrender.com/)** | � [Documentation](#documentation) | �🚀 [Quick Start](#-quick-start)
 
 _An enterprise-grade AI-powered platform for automated road and pavement condition assessment_
 
@@ -51,7 +51,7 @@ _An enterprise-grade AI-powered platform for automated road and pavement conditi
 
 ### 🔗 **Production Application**
 
-**URL**: [https://roadhealth-ai-automated-pavement.onrender.com](https://roadhealth-ai-automated-pavement.onrender.com)
+**URL**: [https://roadhealth-ai-automated-pavement-uyar.onrender.com/](https://roadhealth-ai-automated-pavement-uyar.onrender.com/)
 
 **Demo Credentials:**
 
@@ -462,7 +462,7 @@ PYTHON_VERSION=3.11.0
 python manage.py createsuperuser
 ```
 
-**🌐 Live Production URL**: [https://roadhealth-ai-automated-pavement.onrender.com](https://roadhealth-ai-automated-pavement.onrender.com)
+**🌐 Live Production URL**: [https://roadhealth-ai-automated-pavement-uyar.onrender.com/](https://roadhealth-ai-automated-pavement-uyar.onrender.com/)
 
 ---
 
